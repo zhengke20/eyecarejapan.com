@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>メガネ・コンタクト情報館</title>
+<style>
+:root{--bg:#fff;--fg:#111;--sub:#666;--line:#e5e5e5;--soft:#f6f6f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,"Hiragino Sans","Noto Sans JP","PingFang SC","Apple SD Gothic Neo",sans-serif}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0 6px}
+h1{font-size:18px;margin:0;letter-spacing:.02em}
+.lang button,.tabs button,.chips button{border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:4px 10px;border-radius:999px;font-size:13px;cursor:pointer}
+.lang button.on,.chips button.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:6px 0 10px}
+.tabs button{border:none;border-radius:6px;padding:6px 12px;white-space:nowrap}
+.tabs button.on{background:var(--soft);font-weight:600}
+main{padding:20px 0 60px}
+.lead{color:var(--sub);margin:0 0 16px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+input[type=search]{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card h3{margin:0 0 4px;font-size:15px}
+.card h3 a{color:inherit}
+.meta{font-size:12.5px;color:var(--sub)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px;background:#111}
+.d-chain{background:#2563eb}.d-craft{background:#16a34a}.d-lux{background:#b45309}.d-design{background:#7c3aed}.d-sport{background:#0891b2}.d-smart{background:#db2777}.d-lens{background:#999}
+.d-clear{background:#0891b2}.d-color{background:#db2777}.d-frame{background:#2563eb}.d-cl{background:#db2777}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--sub);font-weight:500}
+.tag{font-size:11.5px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--sub);margin-left:4px}
+.count{font-size:13px;color:var(--sub);margin:-6px 0 10px}
+section.biz h2{font-size:17px;margin:28px 0 8px}
+section.biz h2:first-child{margin-top:0}
+section.biz p,section.biz li{margin:4px 0}
+.note{background:var(--soft);border-radius:8px;padding:10px 14px;font-size:13.5px;color:#333;margin:12px 0}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:8px}
+.steps .card b{display:block;margin-bottom:4px}
+footer{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding:16px 0 30px}
+a{color:#111}
+@media (max-width:600px){h1{font-size:16px}.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><h1 data-i="title"></h1>
+    <div class="lang" id="lang"></div></div>
+  <nav class="tabs" id="tabs"></nav>
+</div></header>
+<main class="wrap" id="main"></main>
+<footer class="wrap" data-i="foot"></footer>
+<script src="data.js"></script>
+<script>
+const LANGS=['ja','zh','en','ko'], LN={ja:'日本語',zh:'中文',en:'EN',ko:'한국어'};
+const T={
+ title:{ja:'メガネ・コンタクト情報館',zh:'眼镜・隐形眼镜情报馆',en:'Japan Eyewear Guide',ko:'안경·콘택트렌즈 정보관'},
+ tBrands:{ja:'ブランド',zh:'品牌',en:'Brands',ko:'브랜드'},
+ tShops:{ja:'お店',zh:'门店',en:'Shops',ko:'매장'},
+ tNews:{ja:'新作',zh:'新品',en:'New',ko:'신작'},
+ tCl:{ja:'コンタクト',zh:'隐形眼镜',en:'Contacts',ko:'콘택트'},
+ search:{ja:'ブランド名・店名で検索',zh:'按品牌名・店名搜索',en:'Search brands or shops',ko:'브랜드·매장명 검색'},
+ all:{ja:'すべて',zh:'全部',en:'All',ko:'전체'},
+ items:{ja:'件',zh:'条',en:' items',ko:'건'},
+ leadBrands:{ja:'日本国内で購入できる主な眼鏡ブランドです。種別・価格帯・主な購入先で絞り込めます。',zh:'在日本可以买到的主要眼镜品牌。可按类别、价位、主要购买渠道筛选。',en:'Major eyewear brands you can buy in Japan, filterable by type, price and where to buy.',ko:'일본에서 구입할 수 있는 주요 안경 브랜드입니다. 종류·가격대·구입처로 필터링할 수 있습니다.'},
+ leadShops:{ja:'眼鏡チェーン、ブランド直営店、セレクトショップ、コンタクト専門店をまとめています。店舗数は各社の公表値で、括弧内は時点です。',zh:'汇总眼镜连锁、品牌直营店、买手店和隐形眼镜专卖店。门店数为各公司公布值，括号内为时间点。',en:'Optical chains, brand stores, select shops and contact-lens retailers. Store counts are official figures with dates.',ko:'안경 체인, 브랜드 직영점, 셀렉트숍, 콘택트렌즈 전문점입니다. 매장 수는 각사 공표치이며 괄호 안은 시점입니다.'},
+ leadNews:{ja:'2026年に日本で発売された主な新作です。詳細は各出典をご確認ください。',zh:'2026年在日本发售的主要新品。详情请查看各出处。',en:'Key 2026 releases in Japan. See each source for details.',ko:'2026년 일본에서 출시된 주요 신작입니다. 자세한 내용은 각 출처를 확인하세요.'},
+ leadCl:{ja:'日本で販売されている主なコンタクトレンズ(視力補正用・カラコン)です。購入には眼科での処方を推奨します。',zh:'在日本销售的主要隐形眼镜(矫正视力用・彩瞳)。建议先到眼科验配。',en:'Major contact lenses sold in Japan (vision and color). An eye-doctor prescription is recommended.',ko:'일본에서 판매되는 주요 콘택트렌즈(시력 교정용·컬러렌즈)입니다. 안과 처방을 권장합니다.'},
+ shopsCol:{ja:'国内店舗',zh:'国内门店',en:'Stores',ko:'국내 매장'},
+ featCol:{ja:'特徴',zh:'特点',en:'Notes',ko:'특징'},
+ typeCol:{ja:'種別',zh:'类型',en:'Type',ko:'종류'},
+ dateCol:{ja:'発売日',zh:'发售日',en:'Date',ko:'출시일'},
+ src:{ja:'出典',zh:'出处',en:'Source',ko:'출처'},
+ verify:{ja:'要確認',zh:'待确认',en:'unverified',ko:'확인 필요'},
+ maker:{ja:'メーカー',zh:'厂商',en:'Maker',ko:'제조사'},
+ foot:{ja:'掲載情報は2026年10月31日時点の公開情報をもとにしています。価格・店舗数・発売日は変わることがあります。',zh:'信息基于2026年10月31日的公开资料，价格・门店数・发售日可能变动。',en:'Based on public information as of Oct 31, 2026. Prices, store counts and dates may change.',ko:'2026년 10월 31일 기준 공개 정보입니다. 가격·매장 수·출시일은 변경될 수 있습니다.'},
+};
+const V={
+ chain:{ja:'国内チェーン',zh:'国内连锁',en:'JP chain',ko:'일본 체인'},
+ craft:{ja:'国産・職人系',zh:'日本匠人品牌',en:'JP craft',ko:'일본 장인'},
+ lux:{ja:'海外ラグジュアリー',zh:'海外奢侈品',en:'Luxury',ko:'해외 럭셔리'},
+ design:{ja:'海外デザイナー',zh:'海外设计师',en:'Designer',ko:'해외 디자이너'},
+ sport:{ja:'スポーツ',zh:'运动',en:'Sport',ko:'스포츠'},
+ smart:{ja:'スマートグラス',zh:'智能眼镜',en:'Smart glasses',ko:'스마트글라스'},
+ lens:{ja:'レンズメーカー',zh:'镜片厂商',en:'Lens maker',ko:'렌즈 제조사'},
+ own:{ja:'直営店',zh:'直营店',en:'Own stores',ko:'직영점'},
+ online:{ja:'オンライン',zh:'网店',en:'Online',ko:'온라인'},
+ select:{ja:'セレクトショップ',zh:'买手店',en:'Select shops',ko:'셀렉트숍'},
+ dept:{ja:'百貨店',zh:'百货店',en:'Dept. stores',ko:'백화점'},
+ brandshop:{ja:'ブランド直営',zh:'品牌直营',en:'Brand store',ko:'브랜드 직영'},
+ cl:{ja:'コンタクト専門店',zh:'隐形眼镜专卖店',en:'Contact lens store',ko:'콘택트 전문점'},
+ clec:{ja:'コンタクト通販',zh:'隐形眼镜网店',en:'Contact lens EC',ko:'콘택트 통판'},
+ clvariety:{ja:'バラエティ店(カラコン)',zh:'杂货店(彩瞳)',en:'Variety store (color)',ko:'버라이어티숍(컬러)'},
+ clear:{ja:'視力補正用',zh:'矫正视力',en:'Vision',ko:'시력 교정'},
+ color:{ja:'カラコン',zh:'彩瞳',en:'Color',ko:'컬러렌즈'},
+ frame:{ja:'フレーム',zh:'镜框',en:'Frames',ko:'프레임'},
+ f_flat:{ja:'国内最大級。レンズ込み価格',zh:'国内规模最大之一，含镜片价格',en:'Largest in Japan; lens-included pricing',ko:'일본 최대급, 렌즈 포함 가격'},
+ f_fitting:{ja:'検眼・調整など接客重視',zh:'重视验光与调整服务',en:'Service-focused fitting',ko:'검안·피팅 등 접객 중시'},
+ f_fast:{ja:'低価格・最短即日受け取り',zh:'低价，最快当天取镜',en:'Low price, same-day pickup',ko:'저가·당일 수령 가능'},
+ f_eye:{ja:'眼の検査・補聴器も対応',zh:'可做视力检查、助听器',en:'Eye checks and hearing aids',ko:'눈 검사·보청기 대응'},
+ f_premium:{ja:'輸入・高級ブランドが充実',zh:'进口及高端品牌丰富',en:'Strong in premium imports',ko:'수입·고급 브랜드 다수'},
+ f_craft:{ja:'国産フレームの直営店',zh:'日本产镜框直营',en:'Japan-made frames',ko:'일본산 프레임 직영'},
+ f_trend:{ja:'体験型の旗艦店',zh:'体验型旗舰店',en:'Experiential flagship',ko:'체험형 플래그십'},
+ f_import:{ja:'海外ブランドの品揃え',zh:'海外品牌选品',en:'Curated imports',ko:'해외 브랜드 셀렉션'},
+ f_cl:{ja:'主要メーカーを店頭で購入可',zh:'主流厂商线下可买',en:'Major makers in store',ko:'주요 제조사 매장 구매'},
+ f_clec:{ja:'定期購入・まとめ買いが安い',zh:'定期购・批量购便宜',en:'Cheap subscriptions',ko:'정기 구매·대량 구매 저렴'},
+ f_color:{ja:'カラコンの主な販路',zh:'彩瞳主要渠道',en:'Main color-lens channel',ko:'컬러렌즈 주요 판로'},
+};
+const C={};
+
+
+let L='ja',tab='brands',q='',f={};
+try{L=localStorage.getItem('eyeL')||'ja'}catch(e){}
+const t=k=>(T[k]||V[k]||{})[L]||k, v=k=>(V[k]||{})[L]||k;
+const yen=p=>p?'¥'.repeat(p):'';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const link=(n,u)=>u?`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n);
+const match=n=>!q||n.toLowerCase().includes(q.toLowerCase());
+
+function chips(key,opts){
+ const cur=f[key]||'';
+ return `<div class="chips">${['',...opts].map(o=>`<button class="${cur===o?'on':''}" onclick="f['${key}']='${o}';render()">${o?(key==='p'?yen(+o):v(o)):t('all')}</button>`).join('')}</div>`;
+}
+function bar(key,opts,extra=''){return `<div class="bar"><input type="search" placeholder="${t('search')}" value="${esc(q)}" oninput="q=this.value;render(true)">${chips(key,opts)}${extra}</div>`}
+
+function brands(){
+ const rows=BRANDS.filter(b=>match(b.n)&&(!f.bt||b.t===f.bt)&&(!f.p||b.p==f.p));
+ return `<p class="lead">${t('leadBrands')}</p>${bar('bt',['chain','craft','lux','design','sport','smart','lens'])}
+ <div class="bar">${chips('p',['1','2','3','4'])}</div>
+ <p class="count">${rows.length}${t('items')}</p>
+ <div class="grid">${rows.map(b=>`<div class="card"><h3>${link(b.n,b.u)}</h3>
+ <div class="meta"><span class="dot d-${b.t}"></span>${v(b.t)} · ${C[b.c]||b.c} ${yen(b.p)}</div>
+ <div class="meta">${b.w.map(v).join(' / ')}</div></div>`).join('')}</div>`;
+}
+function shops(){
+ const rows=SHOPS.filter(s=>match(s.n)&&(!f.st||s.t===f.st));
+ return `<p class="lead">${t('leadShops')}</p>${bar('st',['chain','brandshop','select','dept','cl','clec','clvariety'])}
+ <p class="count">${rows.length}${t('items')}</p>
+ <table><tr><th></th><th>${t('typeCol')}</th><th>${t('shopsCol')}</th><th class="hide-sm">${t('featCol')}</th></tr>
+ ${rows.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td>${v(s.t)}</td><td>${s.s}</td><td class="hide-sm">${v('f_'+s.f)}</td></tr>`).join('')}</table>`;
+}
+function news(){
+ const rows=NEWS.filter(n=>match(n.b)&&(!f.nk||n.k===f.nk));
+ return `<p class="lead">${t('leadNews')}</p>${bar('nk',['frame','smart','cl'])}
+ <table><tr><th>${t('dateCol')}</th><th></th><th></th></tr>
+ ${rows.map(n=>`<tr><td style="white-space:nowrap">${n.d}</td><td><b>${esc(n.b)}</b><br><span class="meta"><span class="dot d-${n.k}"></span>${v(n.k==='cl'?'color':n.k)}</span></td>
+ <td>${esc(n.x[L])}${n.v?`<span class="tag">${t('verify')}</span>`:''} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></td></tr>`).join('')}</table>`;
+}
+function cl(){
+ const rows=CONTACTS.filter(c=>match(c.n)&&(!f.ct||c.t===f.ct));
+ return `<p class="lead">${t('leadCl')}</p>${bar('ct',['clear','color'])}
+ <p class="count">${rows.length}${t('items')}</p>
+ <div class="grid">${rows.map(c=>`<div class="card"><h3>${esc(c.n)}</h3><div class="meta"><span class="dot d-${c.t}"></span>${v(c.t)}${c.m?' · '+esc(c.m):''}</div></div>`).join('')}</div>`;
+}
+const PAGES={brands,shops,news,cl};
+const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews'],['cl','tCl']];
+
+function render(keepFocus){
+ document.documentElement.lang=L;
+ document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
+ document.title=t('title');
+ document.getElementById('lang').innerHTML=LANGS.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]}</button>`).join(' ');
+ document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';q='';render()">${t(n)}</button>`).join('');
+ const m=document.getElementById('main'); m.innerHTML=PAGES[tab]();
+ if(keepFocus){const i=m.querySelector('input');if(i){i.focus();i.setSelectionRange(q.length,q.length)}}
+}
+function setL(l){L=l;try{localStorage.setItem('eyeL',l)}catch(e){}render()}
+render();
+</script>
+</body>
+</html>
