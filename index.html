@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>メガネ・コンタクト情報館</title>
+<title>メガネ・コンタクト情報館 | 日本で買える眼鏡ブランド・お店・新作</title>
+<meta name="description" content="日本で買えるメガネ・サングラス・コンタクトレンズのブランド、眼鏡店、最新の新作をまとめた情報サイト。日本語・中文・English・한국어対応。">
+<link rel="canonical" href="https://eyewearjapan.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://eyewearjapan.com/">
+<meta property="og:title" content="メガネ・コンタクト情報館">
+<meta property="og:description" content="日本で買える眼鏡・コンタクトのブランド、お店、新作まとめ。">
+<meta name="twitter:card" content="summary">
 <style>
 :root{--bg:#fff;--fg:#111;--sub:#666;--line:#e5e5e5;--soft:#f6f6f6}
 *{box-sizing:border-box}
@@ -162,7 +169,7 @@ const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews'],['cl','tCl'
 function render(keepFocus){
  document.documentElement.lang=L;
  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
- document.title=t('title');
+ if(L!=='ja')document.title=t('title');
  document.getElementById('lang').innerHTML=LANGS.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]}</button>`).join(' ');
  document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';q='';render()">${t(n)}</button>`).join('');
  const m=document.getElementById('main'); m.innerHTML=PAGES[tab]();
