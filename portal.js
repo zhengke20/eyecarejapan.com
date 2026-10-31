@@ -24,11 +24,22 @@ const UI={
  more:{ja:'すべて見る',zh:'查看全部',en:'See all',ko:'전체 보기'},
  hFacts:{ja:'知っておきたいこと',zh:'基础知识',en:'GOOD TO KNOW',ko:'알아두면 좋은 것'},
  brandsN:{ja:'ブランド',zh:'个品牌',en:' brands',ko:'개 브랜드'},
+ tGuide:{ja:'ガイド',zh:'指南',en:'Guide',ko:'가이드'},
+ tFind:{ja:'窓口をさがす',zh:'查找窗口',en:'Where to ask',ko:'창구 찾기'},
+ asOf:{ja:'時点',zh:'时点',en:'as of',ko:'기준'},
+ langCol:{ja:'対応言語',zh:'支持语言',en:'Languages',ko:'지원 언어'},
+ searchName:{ja:'名称で検索',zh:'按名称搜索',en:'Search by name',ko:'명칭으로 검색'},
+ nameCol:{ja:'名称',zh:'名称',en:'Name',ko:'명칭'},
 };
-const LN={ja:'日本語',zh:'中文',en:'EN',ko:'한국어'};
+// 言語名。SITE.langs に入れたコードだけ表示する。未翻訳の文言は英語→日本語の順で補う。
+const LN={ja:'日本語',zh:'中文',en:'EN',ko:'한국어',vi:'Tiếng Việt',ne:'नेपाली',pt:'Português',tl:'Tagalog',id:'Bahasa Indonesia',my:'မြန်မာ',es:'Español',th:'ไทย',si:'සිංහල',bn:'বাংলা',fr:'Français','zh-TW':'繁體中文'};
 let L=SITE.langs[0],sec='home',tab='brands',q='',f={};
 try{L=localStorage.getItem(SITE.id+'L')||L}catch(e){}
-const t=k=>(SITE.text[k]||UI[k]||{})[L]||k, v=t;
+if(!SITE.langs.includes(L))L=SITE.langs[0];
+const pick=o=>o?(o[L]??o.en??o.ja):undefined;
+const t=k=>(SITE.text[k]||{})[L]??(UI[k]||{})[L]??(SITE.text[k]||{}).en??(UI[k]||{}).en??k, v=t;
+const tx=o=>typeof o==='string'?o:(pick(o)||'');
+const S0=k=>(SITE.sections.find(s=>s[k])||{}).id;
 const yen=p=>p?'¥'.repeat(p):'';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const link=(n,u)=>u?`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n);
@@ -36,13 +47,13 @@ const dot=k=>`<span class="dot" style="background:${SITE.dots[k]||'#111'}"></spa
 const match=n=>!q||n.toLowerCase().includes(q.toLowerCase());
 const S=id=>SITE.sections.find(s=>s.id===id);
 const uniq=a=>a.filter((x,i)=>a.indexOf(x)===i);
-const of=(kind,s)=>DATA[kind].filter(o=>o.sec===s);
+const of=(kind,s)=>(DATA[kind]||[]).filter(o=>o.sec===s);
 
 function chips(key,opts,lab){
  const cur=f[key]||'';
  return `<div class="chips">${['',...opts].map(o=>`<button class="${cur===o?'on':''}" onclick="f['${key}']='${o}';render()">${o?(lab?lab(o):v(o)):t('all')}</button>`).join('')}</div>`;
 }
-function bar(key,opts){return `<div class="bar"><input type="search" placeholder="${t('search')}" value="${esc(q)}" oninput="q=this.value;render(true)">${opts.length>1?chips(key,opts):''}</div>`}
+function bar(key,opts,ph){return `<div class="bar"><input type="search" placeholder="${t(ph||'search')}" value="${esc(q)}" oninput="q=this.value;render(true)">${opts.length>1?chips(key,opts):''}</div>`}
 
 function brands(cf){
  const all=of('brands',sec), rows=all.filter(b=>match(b.n)&&(!f.t||b.t===f.t)&&(!f.p||b.p==f.p));
@@ -61,13 +72,28 @@ function shops(cf){
  ${rows.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td>${v(s.t)}</td><td>${s.s}</td><td class="hide-sm">${s.f?v('f_'+s.f):''}</td></tr>`).join('')}</table>`;
 }
 function newsRow(n){return `<tr><td style="white-space:nowrap">${n.d}</td><td><b>${esc(n.b)}</b><br><span class="meta">${dot(n.k)}${v(n.k)}</span></td>
- <td>${esc(n.x[L])}${n.v?`<span class="tag">${t('verify')}</span>`:''} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></td></tr>`}
+ <td>${esc(tx(n.x))}${n.v?`<span class="tag">${t('verify')}</span>`:''} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></td></tr>`}
 function news(cf){
  const all=of('news',sec), kinds=cf.kinds||uniq(all.map(n=>n.k)), rows=all.filter(n=>match(n.b)&&(!f.k||n.k===f.k)).sort((a,b)=>b.d.localeCompare(a.d));
  return `<p class="lead">${t(cf.lead)}</p>${bar('k',kinds)}
  <table><tr><th>${t('dateCol')}</th><th></th><th></th></tr>${rows.map(newsRow).join('')}</table>`;
 }
-const PAGES={brands,shops,news};
+// ガイド: DATA.guide の t(トピック)ごとに、出典と時点つきの短い文を並べる。
+function guide(cf){
+ const all=of('guide',sec), tops=uniq(all.map(g=>g.t)), sel=f.t?[f.t]:tops;
+ return `<p class="lead">${t(cf.lead)}</p><div class="bar">${chips('t',tops)}</div>
+ ${sel.map(k=>`<section class="gd"><h2>${dot(k)}${t(k)}</h2>${SITE.text['i_'+k]?`<p class="meta">${t('i_'+k)}</p>`:''}
+ <ul>${all.filter(g=>g.t===k).map(g=>`<li>${esc(tx(g.x))} <span class="meta"><a href="${g.s}" target="_blank" rel="noopener">${t('src')}</a> · ${esc(g.a)}${t('asOf')}</span></li>`).join('')}</ul></section>`).join('')}
+ ${cf.note?`<p class="note">${t(cf.note)}</p>`:''}`;
+}
+// 窓口: DATA.links は公的な検索・相談窓口。lg は対応言語(表示用の文字列)。
+function find(cf){
+ const all=of('links',sec), types=uniq(all.map(o=>o.t)), rows=all.filter(o=>match(tx(o.n))&&(!f.t||o.t===f.t));
+ return `<p class="lead">${t(cf.lead)}</p>${bar('t',types,'searchName')}
+ <table><tr><th>${t('nameCol')}</th><th class="hide-sm">${t('featCol')}</th><th>${t('langCol')}</th></tr>
+ ${rows.map(o=>`<tr><td><b>${link(tx(o.n),o.u)}</b><br><span class="meta">${dot(o.t)}${v(o.t)}</span><div class="meta show-sm">${esc(tx(o.x))}</div></td><td class="hide-sm">${esc(tx(o.x))} <span class="meta">${o.a?esc(o.a)+t('asOf'):''}</span></td><td class="meta">${esc(o.lg||'')}</td></tr>`).join('')}</table>`;
+}
+const PAGES={brands,shops,news,guide,find};
 
 function openB(i){
  const b=DATA.brands[i], cf=S(b.sec).brands, base=b.n.split(/[ (/（]/)[0].toLowerCase();
@@ -83,7 +109,7 @@ function openB(i){
  <h2>${esc(b.n)}</h2><div class="meta">${dot(b.t)}${v(b.t)}${b.c?' · '+b.c:''} ${yen(b.p)}${b.m?' · '+esc(b.m):''}</div>
  ${cf.note?`<p class="note">${t(cf.note)}</p>`:''}
  <h4>${t('whereBuy')}</h4><ul>${where}</ul>
- ${nw.length?`<h4>${t('newOf')}</h4><ul>${nw.map(n=>`<li><span class="meta">${n.d}</span> ${esc(n.x[L])} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></li>`).join('')}</ul>`:''}
+ ${nw.length?`<h4>${t('newOf')}</h4><ul>${nw.map(n=>`<li><span class="meta">${n.d}</span> ${esc(tx(n.x))} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></li>`).join('')}</ul>`:''}
  <div class="btns">${b.u?`<a class="btn" href="${b.u}" target="_blank" rel="noopener">${t('official')} ↗</a>`:''}<button class="btn pri" disabled>${t('buyHere')}</button></div></div>`;
  document.getElementById('dlg').showModal();
 }
@@ -94,23 +120,27 @@ function home(){
  const top=DATA.shops.filter(s=>/^[0-9,約]/.test(s.s)).slice(0,8);
  const feat=(SITE.home.featured||[]).map(n=>DATA.brands.findIndex(b=>b.n===n)).filter(i=>i>=0);
  return `<div class="home"><div class="hero"><h2>${t('heroT')}</h2><p>${t('heroS')}</p>
- <div class="hs"><input type="search" placeholder="${t('search')}" onkeydown="if(event.key==='Enter'){const x=this.value;go(SITE.sections[0].id,'brands');q=x;render()}"></div></div>
+ <div class="hs"><input type="search" placeholder="${t('search')}" onkeydown="if(event.key==='Enter'){const x=this.value;go(S0('brands'),'brands');q=x;render()}"></div></div>
+ ${SITE.home.guide?(gs=>`<h3 class="sh">${t('hGuide')}<a onclick="go('${gs}','find')">${t('tFind')}</a></h3><div class="cats">${uniq(of('guide',gs).map(g=>g.t)).map(k=>`<button class="cat" onclick='go("${gs}","guide",{t:"${k}"})'><b>${dot(k)}${t(k)}</b><span>${cnt(gs,'guide',{t:k})}${t('items')}</span></button>`).join('')}</div>`)(SITE.home.guide):''}
  <h3 class="sh">${t('hFind')}</h3><div class="cats">${SITE.home.cats.map(([k,s,tb,ff])=>`<button class="cat" onclick='go("${s}","${tb}",${JSON.stringify(ff)})'><b>${t(k)}</b><span>${cnt(s,tb,ff)}${tb==='brands'?t('brandsN'):t('items')}</span></button>`).join('')}</div>
- <h3 class="sh">${t('hPick')}<a onclick="go(SITE.sections[0].id,'news')">${t('more')}</a></h3>
- <div class="pick">${latest.map(n=>`<div class="card"><div class="meta">${n.d} · ${dot(n.k)}${v(n.k)}</div><h3>${esc(n.b)}</h3><div class="meta">${esc(n.x[L])} <a href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></div></div>`).join('')}</div>
- <h3 class="sh">${t('hBrand')}<a onclick="go(SITE.sections[0].id,'brands')">${t('more')}</a></h3>
+ <h3 class="sh">${t('hPick')}<a onclick="go(S0('news'),'news')">${t('more')}</a></h3>
+ <div class="pick">${latest.map(n=>`<div class="card"><div class="meta">${n.d} · ${dot(n.k)}${v(n.k)}</div><h3>${esc(n.b)}</h3><div class="meta">${esc(tx(n.x))} <a href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></div></div>`).join('')}</div>
+ <h3 class="sh">${t('hBrand')}<a onclick="go(S0('brands'),'brands')">${t('more')}</a></h3>
  <div class="bchips">${feat.map(i=>`<button onclick="openB(${i})">${esc(DATA.brands[i].n)}</button>`).join('')}</div>
- ${DATA.facts?`<h3 class="sh">${t('hFacts')}</h3><ul class="facts">${DATA.facts.map(x=>`<li>${esc(x.x[L])} <a class="meta" href="${x.s}" target="_blank" rel="noopener">${t('src')}</a></li>`).join('')}</ul>`:''}
- <h3 class="sh">${t('hShop')}<a onclick="go(SITE.sections[0].id,'shops')">${t('more')}</a></h3>
+ ${DATA.facts?`<h3 class="sh">${t('hFacts')}</h3><ul class="facts">${DATA.facts.map(x=>`<li>${esc(tx(x.x))} <a class="meta" href="${x.s}" target="_blank" rel="noopener">${t('src')}</a></li>`).join('')}</ul>`:''}
+ <h3 class="sh">${t('hShop')}<a onclick="go(S0('shops'),'shops')">${t('more')}</a></h3>
  <table>${top.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td class="meta">${v(s.t)}</td><td>${s.s}</td></tr>`).join('')}</table></div>`;
 }
 
-const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews']];
+const TABS=[['guide','tGuide'],['find','tFind'],['brands','tBrands'],['shops','tShops'],['news','tNews']];
 function go(s,tb,ff){sec=s;tab=tb;q='';f=ff||{};try{history.replaceState(null,'','#'+s+'/'+tb)}catch(e){}render()}
 function render(keepFocus){
+ if(sec!=='home'&&!S(sec)[tab])tab=TABS.map(x=>x[0]).find(k=>S(sec)[k]);
  document.documentElement.lang=L;
  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
- document.getElementById('lang').innerHTML=SITE.langs.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]}</button>`).join(' ');
+ document.getElementById('lang').innerHTML=SITE.langs.length>5
+  ?`<select aria-label="Language" onchange="setL(this.value)">${SITE.langs.map(l=>`<option value="${l}"${l===L?' selected':''}>${LN[l]||l}</option>`).join('')}</select>`
+  :SITE.langs.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]||l}</button>`).join(' ');
  document.getElementById('sec').innerHTML=SITE.sections.map(s=>`<button class="${s.id===sec?'on':''}" onclick="go('${s.id}',tab)">${t(s.name)}</button>`).join('');
  document.getElementById('tabs').innerHTML=sec==='home'?'':TABS.filter(([k])=>S(sec)[k]).map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go(sec,'${k}')">${t(n)}</button>`).join('');
  const m=document.getElementById('main'); m.innerHTML=sec==='home'?home():PAGES[tab](S(sec)[tab]);

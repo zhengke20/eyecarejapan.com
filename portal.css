@@ -62,3 +62,8 @@ footer{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding:
 a{color:#111}
 @media (max-width:600px){h1{font-size:16px}.hide-sm{display:none}}
 .facts{margin:0;padding-left:18px}.facts li{margin:6px 0}
+.lang select{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:var(--bg);color:var(--fg)}
+.lang{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.gd{margin:0 0 26px}.gd h2{font-size:17px;margin:0 0 6px}.gd ul{margin:6px 0 0;padding-left:18px}.gd li{margin:7px 0}
+.show-sm{display:none}
+@media (max-width:600px){.show-sm{display:block}.sec{width:auto;max-width:100%;overflow-x:auto}.sec button{white-space:nowrap;padding:7px 12px}}
