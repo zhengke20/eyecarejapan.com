@@ -63,6 +63,17 @@ dialog::backdrop{background:rgba(0,0,0,.25)}
 .btn.pri{background:var(--fg);color:var(--bg)}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .card.click{cursor:pointer}.card.click:hover{border-color:var(--fg)}
+.hero{padding:28px 0 8px}.hero h2{font-size:26px;margin:0 0 6px;letter-spacing:.01em}.hero p{color:var(--sub);margin:0 0 14px}
+.hs{display:flex;gap:8px}.hs input{flex:1}
+.home h3.sh{font-size:13px;letter-spacing:.12em;color:var(--sub);font-weight:600;margin:34px 0 10px;display:flex;justify-content:space-between}
+.home h3.sh a{font-weight:400;letter-spacing:0;cursor:pointer;text-decoration:underline}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cat{border:1px solid var(--line);border-radius:10px;padding:16px 14px;cursor:pointer;background:var(--bg);text-align:left;font:inherit;color:var(--fg)}
+.cat:hover{border-color:var(--fg)}.cat b{display:block;font-size:15px}.cat span{font-size:12.5px;color:var(--sub)}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.pick .card .meta:first-child{margin-bottom:4px}
+.bchips{display:flex;flex-wrap:wrap;gap:6px}.bchips button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--fg)}.bchips button:hover{border-color:var(--fg)}
+h1{cursor:pointer}
 footer{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding:16px 0 30px}
 a{color:#111}
 @media (max-width:600px){h1{font-size:16px}.hide-sm{display:none}}
@@ -70,7 +81,7 @@ a{color:#111}
 </head>
 <body>
 <header><div class="wrap">
-  <div class="top"><h1 data-i="title"></h1>
+  <div class="top"><h1 data-i="title" onclick="go('home','brands')"></h1>
     <div class="lang" id="lang"></div></div>
   <nav class="sec" id="sec"></nav>
   <nav class="tabs" id="tabs"></nav>
@@ -110,6 +121,20 @@ const T={
  buyHere:{ja:'Eyecare Japanで購入(準備中)',zh:'在 Eyecare Japan 购买(准备中)',en:'Buy on Eyecare Japan (coming soon)',ko:'Eyecare Japan에서 구매(준비 중)'},
  stores:{ja:'店舗',zh:'家门店',en:' stores',ko:'개 매장'},
  clRx:{ja:'コンタクトレンズは高度管理医療機器です。初めての方は眼科で検査・処方を受けてください。',zh:'隐形眼镜属于高度管理医疗器械，首次佩戴请先到眼科检查验配。',en:'Contact lenses are regulated medical devices. First-time users should see an eye doctor.',ko:'콘택트렌즈는 고도관리의료기기입니다. 처음이라면 안과 검진·처방을 받으세요.'},
+ heroT:{ja:'日本で買えるメガネとコンタクトを、ひとつの場所で。',zh:'在日本能买到的眼镜和隐形眼镜，一站看全。',en:'Every pair of glasses and contacts you can buy in Japan, in one place.',ko:'일본에서 살 수 있는 안경과 콘택트렌즈를 한곳에서.'},
+ heroS:{ja:'ブランド・お店・新作をまとめています。',zh:'汇总品牌、门店和新品。',en:'Brands, shops and new releases.',ko:'브랜드·매장·신작을 모았습니다.'},
+ hFind:{ja:'さがす',zh:'按类别找',en:'BROWSE',ko:'찾기'},
+ hPick:{ja:'PICK UP 新作',zh:'PICK UP 新品',en:'PICK UP',ko:'PICK UP 신작'},
+ hBrand:{ja:'ブランドからさがす',zh:'按品牌找',en:'BY BRAND',ko:'브랜드로 찾기'},
+ hShop:{ja:'お店をさがす',zh:'找门店',en:'FIND A SHOP',ko:'매장 찾기'},
+ more:{ja:'すべて見る',zh:'查看全部',en:'See all',ko:'전체 보기'},
+ cGlasses:{ja:'メガネ',zh:'框架眼镜',en:'Glasses',ko:'안경'},
+ cSmart:{ja:'スマートグラス',zh:'智能眼镜',en:'Smart glasses',ko:'스마트글라스'},
+ cLens:{ja:'メガネレンズ',zh:'眼镜镜片',en:'Lenses',ko:'안경 렌즈'},
+ cClear:{ja:'コンタクト',zh:'隐形眼镜',en:'Contacts',ko:'콘택트렌즈'},
+ cColor:{ja:'カラコン',zh:'彩瞳',en:'Color contacts',ko:'컬러렌즈'},
+ cShop:{ja:'眼鏡店',zh:'眼镜店',en:'Optical shops',ko:'안경점'},
+ brandsN:{ja:'ブランド',zh:'个品牌',en:' brands',ko:'개 브랜드'},
  foot:{ja:'掲載情報は2026年10月31日時点の公開情報をもとにしています。価格・店舗数・発売日は変わることがあります。',zh:'信息基于2026年10月31日的公开资料，价格・门店数・发售日可能变动。',en:'Based on public information as of Oct 31, 2026. Prices, store counts and dates may change.',ko:'2026년 10월 31일 기준 공개 정보입니다. 가격·매장 수·출시일은 변경될 수 있습니다.'},
 };
 const V={
@@ -146,7 +171,7 @@ const V={
 const C={};
 
 
-let L='ja',sec='glasses',tab='brands',q='',f={};
+let L='ja',sec='home',tab='brands',q='',f={};
 try{L=localStorage.getItem('eyeL')||'ja'}catch(e){}
 const t=k=>(T[k]||V[k]||{})[L]||k, v=k=>(V[k]||{})[L]||k;
 const yen=p=>p?'¥'.repeat(p):'';
@@ -196,7 +221,25 @@ const PAGES={
 };
 const SECS=[['glasses','sGlasses'],['contacts','sContacts']];
 const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews']];
-function go(s,tb){sec=s;tab=tb;q='';f={};try{history.replaceState(null,'','#'+s+'/'+tb)}catch(e){}render()}
+function go(s,tb,ff){sec=s;tab=tb;q='';f=ff||{};try{history.replaceState(null,'','#'+s+'/'+tb)}catch(e){}render()}
+function home(){
+ const nb=(arr,fn)=>arr.filter(fn).length;
+ const cats=[['cGlasses','glasses','brands',{},nb(BRANDS,b=>b.t!=='smart'&&b.t!=='lens')],['cSmart','glasses','brands',{bt:'smart'},nb(BRANDS,b=>b.t==='smart')],['cLens','glasses','brands',{bt:'lens'},nb(BRANDS,b=>b.t==='lens')],['cClear','contacts','brands',{ct:'clear'},nb(CONTACTS,c=>c.t==='clear')],['cColor','contacts','brands',{ct:'color'},nb(CONTACTS,c=>c.t==='color')],['cShop','glasses','shops',{},0]];
+ const news=[...NEWS].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,6);
+ const feat=['JINS','Zoff','OWNDAYS','眼鏡市場','金子眼鏡 KANEKO OPTICAL','999.9 (Four Nines)','EYEVAN','MASUNAGA 増永眼鏡','Ray-Ban','Oliver Peoples','TOM FORD','GENTLE MONSTER','LINDBERG','MYKITA','Ray-Ban Meta'];
+ const featC=['ACUVUE','DAILIES / PRECISION1 / TOTAL1','1DAY Menicon PREMiO','TOPARDS','LARME','ReVIA','EverColor 1day','meichu'];
+ const shops=SHOPS.filter(s=>/^[0-9,約]/.test(s.s)).slice(0,8);
+ const tag=n=>{const g=BRANDS.findIndex(b=>b.n===n);return g>=0?`openB('g',${g})`:`openB('c',${CONTACTS.findIndex(c=>c.n===n)})`};
+ return `<div class="home"><div class="hero"><h2>${t('heroT')}</h2><p>${t('heroS')}</p>
+ <div class="hs"><input type="search" placeholder="${t('search')}" onkeydown="if(event.key==='Enter'){const v=this.value;go('glasses','brands');q=v;render()}"></div></div>
+ <h3 class="sh">${t('hFind')}</h3><div class="cats">${cats.map(([k,s,tb,ff,n])=>`<button class="cat" onclick='go("${s}","${tb}",${JSON.stringify(ff)})'><b>${t(k)}</b><span>${n?n+t('brandsN'):SHOPS.length+t('items')}</span></button>`).join('')}</div>
+ <h3 class="sh">${t('hPick')}<a onclick="go('glasses','news')">${t('more')}</a></h3>
+ <div class="pick">${news.map(n=>`<div class="card"><div class="meta">${n.d} · <span class="dot d-${n.k}"></span>${v(n.k==='cl'?'color':n.k)}</div><h3>${esc(n.b)}</h3><div class="meta">${esc(n.x[L])} <a href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></div></div>`).join('')}</div>
+ <h3 class="sh">${t('hBrand')}<a onclick="go('glasses','brands')">${t('more')}</a></h3>
+ <div class="bchips">${feat.concat(featC).map(n=>`<button onclick="${tag(n)}">${esc(n)}</button>`).join('')}</div>
+ <h3 class="sh">${t('hShop')}<a onclick="go('glasses','shops')">${t('more')}</a></h3>
+ <table>${shops.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td class="meta">${v(s.t)}</td><td>${s.s}</td></tr>`).join('')}</table></div>`;
+}
 const h=location.hash.slice(1).split('/');if(PAGES[h[0]]){sec=h[0];if(PAGES[sec][h[1]])tab=h[1]}
 
 function render(keepFocus){
@@ -204,8 +247,8 @@ function render(keepFocus){
  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
  document.getElementById('lang').innerHTML=LANGS.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]}</button>`).join(' ');
  document.getElementById('sec').innerHTML=SECS.map(([k,n])=>`<button class="${k===sec?'on':''}" onclick="go('${k}',tab)">${t(n)}</button>`).join('');
- document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go(sec,'${k}')">${t(n)}</button>`).join('');
- const m=document.getElementById('main'); m.innerHTML=PAGES[sec][tab]();
+ document.getElementById('tabs').innerHTML=sec==='home'?'':TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go(sec,'${k}')">${t(n)}</button>`).join('');
+ const m=document.getElementById('main'); m.innerHTML=sec==='home'?home():PAGES[sec][tab]();
  if(keepFocus){const i=m.querySelector('input');if(i){i.focus();i.setSelectionRange(q.length,q.length)}}
 }
 function openB(kind,i){
