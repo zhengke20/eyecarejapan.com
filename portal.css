@@ -61,3 +61,4 @@ h1{cursor:pointer}
 footer{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding:16px 0 30px}
 a{color:#111}
 @media (max-width:600px){h1{font-size:16px}.hide-sm{display:none}}
+.facts{margin:0;padding-left:18px}.facts li{margin:6px 0}

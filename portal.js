@@ -22,6 +22,7 @@ const UI={
  hBrand:{ja:'ブランドからさがす',zh:'按品牌找',en:'BY BRAND',ko:'브랜드로 찾기'},
  hShop:{ja:'お店をさがす',zh:'找门店',en:'FIND A SHOP',ko:'매장 찾기'},
  more:{ja:'すべて見る',zh:'查看全部',en:'See all',ko:'전체 보기'},
+ hFacts:{ja:'知っておきたいこと',zh:'基础知识',en:'GOOD TO KNOW',ko:'알아두면 좋은 것'},
  brandsN:{ja:'ブランド',zh:'个品牌',en:' brands',ko:'개 브랜드'},
 };
 const LN={ja:'日本語',zh:'中文',en:'EN',ko:'한국어'};
@@ -73,7 +74,7 @@ function openB(i){
  const nw=DATA.news.filter(n=>n.b.toLowerCase().startsWith(base)||b.n.toLowerCase().includes(n.b.toLowerCase()));
  let where;
  if(b.w){
-  const own=DATA.shops.find(s=>s.n.toLowerCase().startsWith(base));
+  const own=DATA.shops.find(s=>{const sn=s.n.toLowerCase();return sn.startsWith(base)||base.startsWith(sn.split(/[ (（]/)[0])});
   where=b.w.map(w=>`<li>${v(w)}${w==='own'&&own?' — '+link(own.n,own.u)+' · '+own.s.replace(/ \(.*\)/,'')+t('stores'):''}</li>`).join('');
  }else{
   where=of('shops',b.sec).filter(s=>!s.only||s.only.includes(b.t)).map(s=>`<li>${link(s.n,s.u)} <span class="meta">${v(s.t)}</span></li>`).join('');
@@ -99,6 +100,7 @@ function home(){
  <div class="pick">${latest.map(n=>`<div class="card"><div class="meta">${n.d} · ${dot(n.k)}${v(n.k)}</div><h3>${esc(n.b)}</h3><div class="meta">${esc(n.x[L])} <a href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></div></div>`).join('')}</div>
  <h3 class="sh">${t('hBrand')}<a onclick="go(SITE.sections[0].id,'brands')">${t('more')}</a></h3>
  <div class="bchips">${feat.map(i=>`<button onclick="openB(${i})">${esc(DATA.brands[i].n)}</button>`).join('')}</div>
+ ${DATA.facts?`<h3 class="sh">${t('hFacts')}</h3><ul class="facts">${DATA.facts.map(x=>`<li>${esc(x.x[L])} <a class="meta" href="${x.s}" target="_blank" rel="noopener">${t('src')}</a></li>`).join('')}</ul>`:''}
  <h3 class="sh">${t('hShop')}<a onclick="go(SITE.sections[0].id,'shops')">${t('more')}</a></h3>
  <table>${top.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td class="meta">${v(s.t)}</td><td>${s.s}</td></tr>`).join('')}</table></div>`;
 }
