@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>メガネ・コンタクト情報館 | 日本で買える眼鏡ブランド・お店・新作</title>
+<title>Eyecare Japan | 日本で買えるメガネ・コンタクトのブランド・お店・新作</title>
 <meta name="description" content="日本で買えるメガネ・サングラス・コンタクトレンズのブランド、眼鏡店、最新の新作をまとめた情報サイト。日本語・中文・English・한국어対応。">
-<link rel="canonical" href="https://eyewearjapan.com/">
+<link rel="canonical" href="https://eyecarejapan.com/">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://eyewearjapan.com/">
-<meta property="og:title" content="メガネ・コンタクト情報館">
+<meta property="og:url" content="https://eyecarejapan.com/">
+<meta property="og:title" content="Eyecare Japan">
 <meta property="og:description" content="日本で買える眼鏡・コンタクトのブランド、お店、新作まとめ。">
 <meta name="twitter:card" content="summary">
 <style>
@@ -21,6 +21,9 @@ header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(
 h1{font-size:18px;margin:0;letter-spacing:.02em}
 .lang button,.tabs button,.chips button{border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:4px 10px;border-radius:999px;font-size:13px;cursor:pointer}
 .lang button.on,.chips button.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.sec{display:flex;gap:0;margin:6px 0 2px;border:1px solid var(--fg);border-radius:8px;overflow:hidden;width:max-content}
+.sec button{border:none;background:var(--bg);color:var(--fg);padding:7px 18px;font-size:14px;cursor:pointer}
+.sec button.on{background:var(--fg);color:var(--bg);font-weight:600}
 .tabs{display:flex;gap:4px;overflow-x:auto;padding:6px 0 10px}
 .tabs button{border:none;border-radius:6px;padding:6px 12px;white-space:nowrap}
 .tabs button.on{background:var(--soft);font-weight:600}
@@ -57,6 +60,7 @@ a{color:#111}
 <header><div class="wrap">
   <div class="top"><h1 data-i="title"></h1>
     <div class="lang" id="lang"></div></div>
+  <nav class="sec" id="sec"></nav>
   <nav class="tabs" id="tabs"></nav>
 </div></header>
 <main class="wrap" id="main"></main>
@@ -65,17 +69,20 @@ a{color:#111}
 <script>
 const LANGS=['ja','zh','en','ko'], LN={ja:'日本語',zh:'中文',en:'EN',ko:'한국어'};
 const T={
- title:{ja:'メガネ・コンタクト情報館',zh:'眼镜・隐形眼镜情报馆',en:'Japan Eyewear Guide',ko:'안경·콘택트렌즈 정보관'},
+ title:{ja:'Eyecare Japan',zh:'Eyecare Japan',en:'Eyecare Japan',ko:'Eyecare Japan'},
+ sGlasses:{ja:'メガネ',zh:'框架眼镜',en:'Glasses',ko:'안경'},
+ sContacts:{ja:'コンタクト',zh:'隐形眼镜',en:'Contacts',ko:'콘택트렌즈'},
  tBrands:{ja:'ブランド',zh:'品牌',en:'Brands',ko:'브랜드'},
  tShops:{ja:'お店',zh:'门店',en:'Shops',ko:'매장'},
  tNews:{ja:'新作',zh:'新品',en:'New',ko:'신작'},
- tCl:{ja:'コンタクト',zh:'隐形眼镜',en:'Contacts',ko:'콘택트'},
  search:{ja:'ブランド名・店名で検索',zh:'按品牌名・店名搜索',en:'Search brands or shops',ko:'브랜드·매장명 검색'},
  all:{ja:'すべて',zh:'全部',en:'All',ko:'전체'},
  items:{ja:'件',zh:'条',en:' items',ko:'건'},
  leadBrands:{ja:'日本国内で購入できる主な眼鏡ブランドです。種別・価格帯・主な購入先で絞り込めます。',zh:'在日本可以买到的主要眼镜品牌。可按类别、价位、主要购买渠道筛选。',en:'Major eyewear brands you can buy in Japan, filterable by type, price and where to buy.',ko:'일본에서 구입할 수 있는 주요 안경 브랜드입니다. 종류·가격대·구입처로 필터링할 수 있습니다.'},
- leadShops:{ja:'眼鏡チェーン、ブランド直営店、セレクトショップ、コンタクト専門店をまとめています。店舗数は各社の公表値で、括弧内は時点です。',zh:'汇总眼镜连锁、品牌直营店、买手店和隐形眼镜专卖店。门店数为各公司公布值，括号内为时间点。',en:'Optical chains, brand stores, select shops and contact-lens retailers. Store counts are official figures with dates.',ko:'안경 체인, 브랜드 직영점, 셀렉트숍, 콘택트렌즈 전문점입니다. 매장 수는 각사 공표치이며 괄호 안은 시점입니다.'},
- leadNews:{ja:'2026年に日本で発売された主な新作です。詳細は各出典をご確認ください。',zh:'2026年在日本发售的主要新品。详情请查看各出处。',en:'Key 2026 releases in Japan. See each source for details.',ko:'2026년 일본에서 출시된 주요 신작입니다. 자세한 내용은 각 출처를 확인하세요.'},
+ leadShops:{ja:'眼鏡チェーン、ブランド直営店、セレクトショップ、百貨店をまとめています。店舗数は各社の公表値で、括弧内は時点です。',zh:'汇总眼镜连锁、品牌直营店、买手店和百货店。门店数为各公司公布值，括号内为时间点。',en:'Optical chains, brand stores, select shops and department stores. Store counts are official figures with dates.',ko:'안경 체인, 브랜드 직영점, 셀렉트숍, 백화점입니다. 매장 수는 각사 공표치이며 괄호 안은 시점입니다.'},
+ leadClShops:{ja:'コンタクト専門店、通販、カラコンを扱うバラエティ店です。店舗数は公表値で、括弧内は時点です。',zh:'隐形眼镜专卖店、网店和卖彩瞳的杂货店。门店数为公布值，括号内为时间点。',en:'Contact-lens stores, online shops and variety stores selling color lenses. Store counts are official figures with dates.',ko:'콘택트렌즈 전문점, 통판, 컬러렌즈를 파는 버라이어티숍입니다. 매장 수는 공표치이며 괄호 안은 시점입니다.'},
+ leadNews:{ja:'2026年に日本で発売された主なメガネ・サングラス・スマートグラスの新作です。詳細は各出典をご確認ください。',zh:'2026年在日本发售的主要眼镜、墨镜和智能眼镜新品。详情请查看各出处。',en:'Key 2026 glasses, sunglasses and smart-glasses releases in Japan. See each source for details.',ko:'2026년 일본에서 출시된 주요 안경·선글라스·스마트글라스 신작입니다. 자세한 내용은 각 출처를 확인하세요.'},
+ leadClNews:{ja:'2026年に日本で発売された主なコンタクト・カラコンの新作です。詳細は各出典をご確認ください。',zh:'2026年在日本发售的主要隐形眼镜和彩瞳新品。详情请查看各出处。',en:'Key 2026 contact and color-lens releases in Japan. See each source for details.',ko:'2026년 일본에서 출시된 주요 콘택트·컬러렌즈 신작입니다. 자세한 내용은 각 출처를 확인하세요.'},
  leadCl:{ja:'日本で販売されている主なコンタクトレンズ(視力補正用・カラコン)です。購入には眼科での処方を推奨します。',zh:'在日本销售的主要隐形眼镜(矫正视力用・彩瞳)。建议先到眼科验配。',en:'Major contact lenses sold in Japan (vision and color). An eye-doctor prescription is recommended.',ko:'일본에서 판매되는 주요 콘택트렌즈(시력 교정용·컬러렌즈)입니다. 안과 처방을 권장합니다.'},
  shopsCol:{ja:'国内店舗',zh:'国内门店',en:'Stores',ko:'국내 매장'},
  featCol:{ja:'特徴',zh:'特点',en:'Notes',ko:'특징'},
@@ -120,19 +127,20 @@ const V={
 const C={};
 
 
-let L='ja',tab='brands',q='',f={};
+let L='ja',sec='glasses',tab='brands',q='',f={};
 try{L=localStorage.getItem('eyeL')||'ja'}catch(e){}
 const t=k=>(T[k]||V[k]||{})[L]||k, v=k=>(V[k]||{})[L]||k;
 const yen=p=>p?'¥'.repeat(p):'';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const link=(n,u)=>u?`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n);
 const match=n=>!q||n.toLowerCase().includes(q.toLowerCase());
+const CL_SHOP=['cl','clec','clvariety'];
 
 function chips(key,opts){
  const cur=f[key]||'';
  return `<div class="chips">${['',...opts].map(o=>`<button class="${cur===o?'on':''}" onclick="f['${key}']='${o}';render()">${o?(key==='p'?yen(+o):v(o)):t('all')}</button>`).join('')}</div>`;
 }
-function bar(key,opts,extra=''){return `<div class="bar"><input type="search" placeholder="${t('search')}" value="${esc(q)}" oninput="q=this.value;render(true)">${chips(key,opts)}${extra}</div>`}
+function bar(key,opts,extra=''){return `<div class="bar"><input type="search" placeholder="${t('search')}" value="${esc(q)}" oninput="q=this.value;render(true)">${opts.length?chips(key,opts):''}${extra}</div>`}
 
 function brands(){
  const rows=BRANDS.filter(b=>match(b.n)&&(!f.bt||b.t===f.bt)&&(!f.p||b.p==f.p));
@@ -143,36 +151,42 @@ function brands(){
  <div class="meta"><span class="dot d-${b.t}"></span>${v(b.t)} · ${C[b.c]||b.c} ${yen(b.p)}</div>
  <div class="meta">${b.w.map(v).join(' / ')}</div></div>`).join('')}</div>`;
 }
-function shops(){
- const rows=SHOPS.filter(s=>match(s.n)&&(!f.st||s.t===f.st));
- return `<p class="lead">${t('leadShops')}</p>${bar('st',['chain','brandshop','select','dept','cl','clec','clvariety'])}
+function shopTable(lead,types){
+ const rows=SHOPS.filter(s=>types.includes(s.t)&&match(s.n)&&(!f.st||s.t===f.st));
+ return `<p class="lead">${t(lead)}</p>${bar('st',types)}
  <p class="count">${rows.length}${t('items')}</p>
  <table><tr><th></th><th>${t('typeCol')}</th><th>${t('shopsCol')}</th><th class="hide-sm">${t('featCol')}</th></tr>
  ${rows.map(s=>`<tr><td><b>${link(s.n,s.u)}</b></td><td>${v(s.t)}</td><td>${s.s}</td><td class="hide-sm">${v('f_'+s.f)}</td></tr>`).join('')}</table>`;
 }
-function news(){
- const rows=NEWS.filter(n=>match(n.b)&&(!f.nk||n.k===f.nk));
- return `<p class="lead">${t('leadNews')}</p>${bar('nk',['frame','smart','cl'])}
+function newsTable(lead,kinds){
+ const rows=NEWS.filter(n=>kinds.includes(n.k)&&match(n.b)&&(!f.nk||n.k===f.nk));
+ return `<p class="lead">${t(lead)}</p>${bar('nk',kinds.length>1?kinds:[])}
  <table><tr><th>${t('dateCol')}</th><th></th><th></th></tr>
  ${rows.map(n=>`<tr><td style="white-space:nowrap">${n.d}</td><td><b>${esc(n.b)}</b><br><span class="meta"><span class="dot d-${n.k}"></span>${v(n.k==='cl'?'color':n.k)}</span></td>
  <td>${esc(n.x[L])}${n.v?`<span class="tag">${t('verify')}</span>`:''} <a class="meta" href="${n.s}" target="_blank" rel="noopener">${t('src')}</a></td></tr>`).join('')}</table>`;
 }
-function cl(){
+function clBrands(){
  const rows=CONTACTS.filter(c=>match(c.n)&&(!f.ct||c.t===f.ct));
  return `<p class="lead">${t('leadCl')}</p>${bar('ct',['clear','color'])}
  <p class="count">${rows.length}${t('items')}</p>
  <div class="grid">${rows.map(c=>`<div class="card"><h3>${esc(c.n)}</h3><div class="meta"><span class="dot d-${c.t}"></span>${v(c.t)}${c.m?' · '+esc(c.m):''}</div></div>`).join('')}</div>`;
 }
-const PAGES={brands,shops,news,cl};
-const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews'],['cl','tCl']];
+const PAGES={
+ glasses:{brands,shops:()=>shopTable('leadShops',SHOPS.map(s=>s.t).filter((x,i,a)=>!CL_SHOP.includes(x)&&a.indexOf(x)===i)),news:()=>newsTable('leadNews',['frame','smart'])},
+ contacts:{brands:clBrands,shops:()=>shopTable('leadClShops',CL_SHOP),news:()=>newsTable('leadClNews',['cl'])},
+};
+const SECS=[['glasses','sGlasses'],['contacts','sContacts']];
+const TABS=[['brands','tBrands'],['shops','tShops'],['news','tNews']];
+function go(s,tb){sec=s;tab=tb;q='';f={};try{history.replaceState(null,'','#'+s+'/'+tb)}catch(e){}render()}
+const h=location.hash.slice(1).split('/');if(PAGES[h[0]]){sec=h[0];if(PAGES[sec][h[1]])tab=h[1]}
 
 function render(keepFocus){
  document.documentElement.lang=L;
  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
- if(L!=='ja')document.title=t('title');
  document.getElementById('lang').innerHTML=LANGS.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}')">${LN[l]}</button>`).join(' ');
- document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';q='';render()">${t(n)}</button>`).join('');
- const m=document.getElementById('main'); m.innerHTML=PAGES[tab]();
+ document.getElementById('sec').innerHTML=SECS.map(([k,n])=>`<button class="${k===sec?'on':''}" onclick="go('${k}',tab)">${t(n)}</button>`).join('');
+ document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go(sec,'${k}')">${t(n)}</button>`).join('');
+ const m=document.getElementById('main'); m.innerHTML=PAGES[sec][tab]();
  if(keepFocus){const i=m.querySelector('input');if(i){i.focus();i.setSelectionRange(q.length,q.length)}}
 }
 function setL(l){L=l;try{localStorage.setItem('eyeL',l)}catch(e){}render()}
